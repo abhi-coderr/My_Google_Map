@@ -1,4 +1,4 @@
-package org.geeksforgeeks.myapplication
+package org.geeksforgeeks.myapplication.ui.adapter
 
 
 import android.content.Context
@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.TextView
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
+import org.geeksforgeeks.myapplication.R
 
 
 class MyInfoWindowAdapter(mContext: Context) : GoogleMap.InfoWindowAdapter {

@@ -1,24 +1,26 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
     id 'com.google.secrets_gradle_plugin' version '0.4'
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "org.geeksforgeeks.myapplication"
         minSdkVersion 16
-        targetSdkVersion 30
+        multiDexEnabled true
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildFeatures{
+    buildFeatures {
         dataBinding true
     }
 
@@ -49,6 +51,32 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //
     implementation 'com.google.android.libraries.places:places:2.4.0'
+    //retrofit
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2'
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+
+    // coroutine for async api calling handling
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
+    //coroutine Lifecycle Scope
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+
+    //dagger-hilt
+//    implementation 'com.google.dagger:dagger:2.27'
+//    annotationProcessor "com.google.dagger:dagger-compiler:2.27"
+//    implementation "com.google.dagger:hilt-android:2.44"
+//    kapt "com.google.dagger:hilt-compiler:2.44"
+
+    //sdp-ssp
+    implementation 'com.intuit.sdp:sdp-android:1.1.0'
+    implementation 'com.intuit.ssp:ssp-android:1.1.0'
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes true
 }
