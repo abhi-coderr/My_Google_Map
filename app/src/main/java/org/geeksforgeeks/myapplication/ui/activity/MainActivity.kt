@@ -26,6 +26,7 @@ import org.geeksforgeeks.myapplication.databinding.ActivityMainBinding
 import org.geeksforgeeks.myapplication.network.model.MapDataClass
 import org.geeksforgeeks.myapplication.ui.viewmodel.MapViewModel
 import org.geeksforgeeks.myapplication.utils.Const.Companion.API_KEY
+import org.geeksforgeeks.myapplication.utils.MapHelper
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -46,13 +47,33 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapViewModel = ViewModelProvider(this)[MapViewModel::class.java]
 
+        val mapHelper = MapHelper(map = mMap, onClick = {latLng ->
+
+
+
+        })
+
+        // Initializing the Places API with the help of our API_KEY
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, API_KEY)
+        }
+
+        // Map Fragment
+        mapFragment = supportFragmentManager.findFragmentById(
+            R.id.map
+        ) as SupportMapFragment
+
+        mapFragment.getMapAsync(this)
+
         mapViewModel.showProgress.observe(this, Observer { isShow ->
             if (isShow) {
                 activityMainBinding.progressBar.visibility = View.VISIBLE
                 mMap.uiSettings.setAllGesturesEnabled(false)
+                mapFragment.view?.isClickable = false
             } else {
                 activityMainBinding.progressBar.visibility = View.GONE
                 mMap.uiSettings.setAllGesturesEnabled(true)
+                mapFragment.view?.isClickable = true
             }
         })
 
@@ -67,20 +88,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.addPolyline(lineoption)
         })
 
-
-        // Initializing the Places API with the help of our API_KEY
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, API_KEY)
-        }
-        // Map Fragment
-        mapFragment = supportFragmentManager.findFragmentById(
-            R.id.map
-        ) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-
     }
 
     override fun onMapReady(p0: GoogleMap?) {
+
         if (p0 != null) {
             mMap = p0
         }
@@ -115,8 +126,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             )
                         ).position(origin as LatLng)
                     )
+
 //                    val urll = getDirectionURL(lastSecond as LatLng, origin)
-//
+
 //                    GetDirection(urll).execute()
 
                     val originLatString = (lastSecond as LatLng).latitude.toString()
@@ -129,7 +141,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     val destinationString = "$destinationLatString,$destinationLongString"
                     mapViewModel.getDirection(originString, destinationString)
-//                    mapViewModel.getDirection(lastSecond as LatLng, origin)
+
                 }
 
                 markerPoints.size == 1 -> {
