@@ -4,36 +4,46 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.geeksforgeeks.myapplication.network.ApiServices.MapServices
-import org.geeksforgeeks.myapplication.network.model.MapDataClass
 import org.geeksforgeeks.myapplication.utils.Const.Companion.API_KEY
 import org.geeksforgeeks.myapplication.utils.Const.Companion.BASE_URL
-import org.geeksforgeeks.myapplication.utils.MapHelper
+import org.geeksforgeeks.myapplication.utils.GoogleMapUtil
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 class MapViewModel : ViewModel() {
 
-    val retrofit = retrofitInstance()
-    val responseData = MutableLiveData<ArrayList<List<LatLng>>>()
-    val errorMessage = MutableLiveData<String>()
-    val showProgress = MutableLiveData<Boolean>()
-    lateinit var mapHelper : MapHelper
-    var lastFirst = Any()
-    var lastSecond = Any()
-    var markerPoints: ArrayList<Any> = ArrayList()
-    var job: Job? = null
+    //retrofit instance
+    private val retrofit = retrofitInstance()
 
-    fun getDirection(origin: String, dest: String) {
+    //data observed by main activity
+    val responseData = MutableLiveData<ArrayList<List<LatLng>>>()
+
+    //error data observed by main activity
+     val errorMessage = MutableLiveData<String>()
+
+    //notify to main activity about progressbar
+    val showProgress = MutableLiveData<Boolean>()
+
+    //nullable job for coroutine light weight threads
+    private var job: Job? = null
+
+    //declare util instance
+    lateinit var googleMapUtil: GoogleMapUtil
+
+    private var lastFirst = Any()
+    private var lastSecond = Any()
+    private var markerPoints: ArrayList<Any> = ArrayList()
+
+    private fun getDirection(origin: String, dest: String) {
         showProgress.value = true
 
         job = viewModelScope.launch {
@@ -44,14 +54,19 @@ class MapViewModel : ViewModel() {
             )
             if (result.isSuccessful) {
                 showProgress.value = false
+
                 val response = ArrayList<List<LatLng>>()
                 try {
                     val respObj = result.body()
-                    val path = ArrayList<LatLng>()
-                    for (i in 0 until respObj?.routes?.get(0)?.legs?.get(0)?.steps?.size!!) {
-                        path.addAll(decodePolyline(respObj.routes[0].legs[0].steps[i].polyline.points))
+                    if (respObj?.routes.isNullOrEmpty()){
+                        onError("No route found")
+                    }else {
+                        val path = ArrayList<LatLng>()
+                        for (i in 0 until respObj?.routes?.get(0)?.legs?.get(0)?.steps?.size!!) {
+                            path.addAll(decodePolyline(respObj.routes[0].legs[0].steps[i].polyline.points))
+                        }
+                        response.add(path)
                     }
-                    response.add(path)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -73,8 +88,20 @@ class MapViewModel : ViewModel() {
     }
 
     private fun retrofitInstance(): MapServices {
+
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+
+        val okHttpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor(interceptor) // same for .addInterceptor(...)
+            .connectTimeout(30, TimeUnit.SECONDS) //Backend is really slow
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+
         val api: MapServices by lazy {
             Retrofit.Builder()
+                .client(okHttpClient)
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -83,7 +110,7 @@ class MapViewModel : ViewModel() {
         return api
     }
 
-    fun decodePolyline(encoded: String): List<LatLng> {
+    private fun decodePolyline(encoded: String): List<LatLng> {
         val poly = ArrayList<LatLng>()
         var index = 0
         val len = encoded.length
@@ -98,8 +125,8 @@ class MapViewModel : ViewModel() {
                 result = result or (b and 0x1f shl shift)
                 shift += 5
             } while (b >= 0x20)
-            val dlat = if (result and 1 != 0) (result shr 1).inv() else result shr 1
-            lat += dlat
+            val dLat = if (result and 1 != 0) (result shr 1).inv() else result shr 1
+            lat += dLat
             shift = 0
             result = 0
             do {
@@ -107,159 +134,143 @@ class MapViewModel : ViewModel() {
                 result = result or (b and 0x1f shl shift)
                 shift += 5
             } while (b >= 0x20)
-            val dlng = if (result and 1 != 0) (result shr 1).inv() else result shr 1
-            lng += dlng
+            val dLng = if (result and 1 != 0) (result shr 1).inv() else result shr 1
+            lng += dLng
             val latLng = LatLng((lat.toDouble() / 1E5), (lng.toDouble() / 1E5))
             poly.add(latLng)
         }
         return poly
     }
 
-    fun setMapHelper(mMap: GoogleMap){
+    fun setMap(mapFragment: SupportMapFragment) {
+        googleMapUtil = GoogleMapUtil(
+            mapFragment = mapFragment,
+            onMapReady = {
 
-        mapHelper = MapHelper(map = mMap, onClick = {latlong ->
+            },
+            onClick = { latLng ->
+                markerPoints.add(latLng)
 
-            markerPoints.add(latlong)
+                when {
+                    markerPoints.size > 3 -> {
 
-            when {
-                markerPoints.size > 3 -> {
-                    markerPoints.clear()
-                    mMap.clear()
+                        markerPoints.clear()
 
-                    markerPoints.add(latlong)
+                        googleMapUtil.map?.clear()
 
-                    var origin = markerPoints[0]
+                        markerPoints.add(latLng)
 
-                    mMap.addMarker(
-                        MarkerOptions().icon(
-                            BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_GREEN
+                        val origin = markerPoints[0]
+
+                        googleMapUtil.addMarker(
+                            lastSecond as LatLng,
+                            BitmapDescriptorFactory.HUE_GREEN,
+                            isFocus = false
+                        )
+
+                        googleMapUtil.addMarker(
+                            origin as LatLng,
+                            BitmapDescriptorFactory.HUE_RED,
+                            isFocus = false
+                        )
+
+                        val originLatString = (lastSecond as LatLng).latitude.toString()
+                        val originLongString = (lastSecond as LatLng).longitude.toString()
+
+                        val originString = "$originLatString,$originLongString"
+
+                        val destinationLatString = origin.latitude.toString()
+                        val destinationLongString = origin.longitude.toString()
+
+                        val destinationString = "$destinationLatString,$destinationLongString"
+                        getDirection(originString, destinationString)
+
+                    }
+
+                    markerPoints.size == 1 -> {
+
+                        googleMapUtil.addMarker(
+                            latLng,
+                            BitmapDescriptorFactory.HUE_GREEN,
+                            isFocus = true
+                        )
+                        googleMapUtil.map?.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                latLng,
+                                18F
                             )
-                        ).position(lastSecond as LatLng)
-                    )
+                        )
+                    }
 
-                    mMap.addMarker(
-                        MarkerOptions().icon(
-                            BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_RED
-                            )
-                        ).position(origin as LatLng)
-                    )
+                    markerPoints.size == 2 -> {
 
-//                    val urll = getDirectionURL(lastSecond as LatLng, origin)
+                        googleMapUtil.map?.clear()
 
-//                    GetDirection(urll).execute()
+                        googleMapUtil.addMarker(
+                            markerPoints[0] as LatLng,
+                            BitmapDescriptorFactory.HUE_GREEN,
+                            isFocus = false
+                        )
+                        googleMapUtil.addMarker(
+                            latLng,
+                            BitmapDescriptorFactory.HUE_RED,
+                            isFocus = false
+                        )
 
-                    val originLatString = (lastSecond as LatLng).latitude.toString()
-                    val originLongString = (lastSecond as LatLng).longitude.toString()
+                        val origin = markerPoints[0]
+                        val dest = markerPoints[1]
 
-                    val originString = "$originLatString,$originLongString"
+                        val originLatString = (origin as LatLng).latitude.toString()
+                        val originLongString = (origin).longitude.toString()
 
-                    val destinationLatString = origin.latitude.toString()
-                    val destinationLongString = origin.longitude.toString()
+                        val originString = "$originLatString,$originLongString"
 
-                    val destinationString = "$destinationLatString,$destinationLongString"
-                    getDirection(originString, destinationString)
+                        val destinationLatString = (dest as LatLng).latitude.toString()
+                        val destinationLongString = (dest).longitude.toString()
 
-                }
+                        val destinationString = "$destinationLatString,$destinationLongString"
 
-                markerPoints.size == 1 -> {
-                    mMap.addMarker(
-                        MarkerOptions().icon(
-                            BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_GREEN
-                            )
-                        ).position(latlong)
-                    )
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlong, 18F))
-                }
+                        getDirection(originString, destinationString)
+                    }
 
-                markerPoints.size == 2 -> {
+                    markerPoints.size == 3 -> {
+                        googleMapUtil.map?.clear()
 
-                    mMap.clear()
-                    mMap.addMarker(
-                        MarkerOptions().icon(
-                            BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_GREEN
-                            )
-                        ).position(markerPoints[0] as LatLng)
-                    )
+                        val origin = markerPoints[1]
 
-                    mMap.addMarker(
-                        MarkerOptions().icon(
-                            BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_RED
-                            )
-                        ).position(latlong)
-                    )
+                        val dest = markerPoints[2]
 
-                    val origin = markerPoints[0]
-                    val dest = markerPoints[1]
+                        lastFirst = origin
+                        lastSecond = dest
 
-//                    val urll = getDirectionURL(origin as LatLng, dest as LatLng)
-//                    GetDirection(urll).execute()
 
-                    val originLatString = (origin as LatLng).latitude.toString()
-                    val originLongString = (origin as LatLng).longitude.toString()
+                        googleMapUtil.addMarker(
+                            origin as LatLng,
+                            BitmapDescriptorFactory.HUE_GREEN,
+                            isFocus = false
+                        )
+                        googleMapUtil.addMarker(
+                            latLng,
+                            BitmapDescriptorFactory.HUE_RED,
+                            isFocus = false
+                        )
 
-                    val originString = "$originLatString,$originLongString"
+                        val originLatString = origin.latitude.toString()
+                        val originLongString = origin.longitude.toString()
 
-                    val destinationLatString = (dest as LatLng).latitude.toString()
-                    val destinationLongString = (dest as LatLng).longitude.toString()
+                        val originString = "$originLatString,$originLongString"
 
-                    val destinationString = "$destinationLatString,$destinationLongString"
+                        val destinationLatString = (dest as LatLng).latitude.toString()
+                        val destinationLongString = (dest).longitude.toString()
 
-                    getDirection(originString, destinationString)
-                }
+                        val destinationString = "$destinationLatString,$destinationLongString"
 
-                markerPoints.size == 3 -> {
-                    mMap.clear()
+                        getDirection(originString, destinationString)
 
-                    var origin = markerPoints[1]
-
-                    var dest = markerPoints[2]
-
-                    lastFirst = origin
-                    lastSecond = dest
-
-                    mMap.addMarker(
-                        MarkerOptions().icon(
-                            BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_GREEN
-                            )
-                        ).position(origin as LatLng)
-                    )
-
-                    mMap.addMarker(
-                        MarkerOptions().icon(
-                            BitmapDescriptorFactory.defaultMarker(
-                                BitmapDescriptorFactory.HUE_RED
-                            )
-                        ).position(latlong)
-                    )
-
-//                    val urll = getDirectionURL(origin, dest as LatLng)
-//
-//                    GetDirection(urll).execute()
-
-                    val originLatString = origin.latitude.toString()
-                    val originLongString = origin.longitude.toString()
-
-                    val originString = "$originLatString,$originLongString"
-
-                    val destinationLatString = (dest as LatLng).latitude.toString()
-                    val destinationLongString = (dest as LatLng).longitude.toString()
-
-                    val destinationString = "$destinationLatString,$destinationLongString"
-
-                    getDirection(originString, destinationString)
-
+                    }
                 }
             }
-
-        })
-
-
+        )
     }
 
 }
