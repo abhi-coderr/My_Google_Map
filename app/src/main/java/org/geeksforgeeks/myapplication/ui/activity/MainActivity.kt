@@ -1,5 +1,6 @@
 package org.geeksforgeeks.myapplication.ui.activity
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -17,10 +18,8 @@ import org.geeksforgeeks.myapplication.utils.Const.Companion.API_KEY
 class MainActivity : AppCompatActivity() {
 
     private lateinit var activityMainBinding: ActivityMainBinding
+
     private lateinit var mapFragment: SupportMapFragment
-//    var lastFirst = Any()
-//    var lastSecond = Any()
-//    var markerPoints: ArrayList<Any> = ArrayList()
 
     private lateinit var mapViewModel: MapViewModel
 
@@ -63,174 +62,12 @@ class MainActivity : AppCompatActivity() {
                 lineOption.color(Color.BLACK)
                 lineOption.geodesic(true)
             }
-            mapViewModel.googleMapUtil.map?.addPolyline(lineOption)
+            mapViewModel.googleMapUtil.addPolyline(lineOption)
+        }
+
+        activityMainBinding.clusterBtn.setOnClickListener {
+            startActivity(Intent(this, ClusterActivity::class.java))
         }
 
     }
-
-//    override fun onMapReady(p0: GoogleMap?) {
-//
-//        if (p0 != null) {
-//            mMap = p0
-//        }
-//
-//        mMap.setOnMapClickListener { latlong ->
-//
-//            markerPoints.add(latlong)
-//
-//            when {
-//                markerPoints.size > 3 -> {
-//                    markerPoints.clear()
-//                    mMap.clear()
-//
-//                    markerPoints.add(latlong)
-//
-//                    var origin = markerPoints[0]
-//
-//                    mMap.addMarker(
-//                        MarkerOptions().icon(
-//                            BitmapDescriptorFactory.defaultMarker(
-//                                BitmapDescriptorFactory.HUE_GREEN
-//                            )
-//                        ).position(lastSecond as LatLng)
-//                    )
-//
-////                mapHelper.addOnMarker(lastSecond as LatLng)
-//
-//                    mMap.addMarker(
-//                        MarkerOptions().icon(
-//                            BitmapDescriptorFactory.defaultMarker(
-//                                BitmapDescriptorFactory.HUE_RED
-//                            )
-//                        ).position(origin as LatLng)
-//                    )
-//
-////                mapHelper.addOnMarker(origin as LatLng)
-//
-////                    val urll = getDirectionURL(lastSecond as LatLng, origin)
-//
-////                    GetDirection(urll).execute()
-//
-//                    val originLatString = (lastSecond as LatLng).latitude.toString()
-//                    val originLongString = (lastSecond as LatLng).longitude.toString()
-//
-//                    val originString = "$originLatString,$originLongString"
-//
-//                    val destinationLatString = origin.latitude.toString()
-//                    val destinationLongString = origin.longitude.toString()
-//
-//                    val destinationString = "$destinationLatString,$destinationLongString"
-//                    mapViewModel.getDirection(originString, destinationString)
-//
-//
-//                }
-//
-//                markerPoints.size == 1 -> {
-//                    mMap.addMarker(
-//                        MarkerOptions().icon(
-//                            BitmapDescriptorFactory.defaultMarker(
-//                                BitmapDescriptorFactory.HUE_GREEN
-//                            )
-//                        ).position(latlong)
-//                    )
-//
-////                mapHelper.addOnMarker(latlong)
-//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlong, 18F))
-//                }
-//
-//                markerPoints.size == 2 -> {
-//
-//                    mMap.clear()
-//                    mMap.addMarker(
-//                        MarkerOptions().icon(
-//                            BitmapDescriptorFactory.defaultMarker(
-//                                BitmapDescriptorFactory.HUE_GREEN
-//                            )
-//                        ).position(markerPoints[0] as LatLng)
-//                    )
-//
-////                mapHelper.addOnMarker(markerPoints[0] as LatLng)
-//
-//                    mMap.addMarker(
-//                        MarkerOptions().icon(
-//                            BitmapDescriptorFactory.defaultMarker(
-//                                BitmapDescriptorFactory.HUE_RED
-//                            )
-//                        ).position(latlong)
-//                    )
-//
-////                mapHelper.addOnMarker(latlong)
-//
-//                    val origin = markerPoints[0]
-//                    val dest = markerPoints[1]
-//
-////                    val urll = getDirectionURL(origin as LatLng, dest as LatLng)
-////                    GetDirection(urll).execute()
-//
-//                    val originLatString = (origin as LatLng).latitude.toString()
-//                    val originLongString = (origin as LatLng).longitude.toString()
-//
-//                    val originString = "$originLatString,$originLongString"
-//
-//                    val destinationLatString = (dest as LatLng).latitude.toString()
-//                    val destinationLongString = (dest as LatLng).longitude.toString()
-//
-//                    val destinationString = "$destinationLatString,$destinationLongString"
-//
-//                    mapViewModel.getDirection(originString, destinationString)
-//                }
-//
-//                markerPoints.size == 3 -> {
-//                    mMap.clear()
-//
-//                    var origin = markerPoints[1]
-//
-//                    var dest = markerPoints[2]
-//
-//                    lastFirst = origin
-//                    lastSecond = dest
-//
-//                    mMap.addMarker(
-//                        MarkerOptions().icon(
-//                            BitmapDescriptorFactory.defaultMarker(
-//                                BitmapDescriptorFactory.HUE_GREEN
-//                            )
-//                        ).position(origin as LatLng)
-//                    )
-//
-////                mapHelper.addOnMarker(origin as LatLng)
-//
-//                    mMap.addMarker(
-//                        MarkerOptions().icon(
-//                            BitmapDescriptorFactory.defaultMarker(
-//                                BitmapDescriptorFactory.HUE_RED
-//                            )
-//                        ).position(latlong)
-//                    )
-//
-////                mapHelper.addOnMarker(latlong)
-//
-////                    val urll = getDirectionURL(origin, dest as LatLng)
-////
-////                    GetDirection(urll).execute()
-//
-//                    val originLatString = origin.latitude.toString()
-//                    val originLongString = origin.longitude.toString()
-//
-//                    val originString = "$originLatString,$originLongString"
-//
-//                    val destinationLatString = (dest as LatLng).latitude.toString()
-//                    val destinationLongString = (dest as LatLng).longitude.toString()
-//
-//                    val destinationString = "$destinationLatString,$destinationLongString"
-//
-//                    mapViewModel.getDirection(originString, destinationString)
-//
-//                }
-//
-//            }
-//
-//        }
-//
-//    }
 }

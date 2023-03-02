@@ -20,12 +20,12 @@
             android:name="com.google.android.gms.maps.SupportMapFragment" />
 
         <Button
-            android:id="@+id/directions"
+            android:id="@+id/cluster_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
-            android:text="Click"
+            android:text="Cluster"
             tools:ignore="MissingConstraints" />
 
         <ProgressBar

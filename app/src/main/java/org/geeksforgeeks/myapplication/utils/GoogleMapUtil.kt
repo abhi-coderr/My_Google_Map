@@ -7,14 +7,15 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 
 class GoogleMapUtil(
     mapFragment: SupportMapFragment,
-    private var onMapReady: (googleMap: GoogleMap) -> Unit,
-    var onClick: (latLng: LatLng) -> Unit
+    private val onMapReady: (googleMap: GoogleMap) -> Unit = {},
+    private val onClick: (latLng: LatLng) -> Unit = {}
 ) {
 
-    var map: GoogleMap? = null
+    private var map: GoogleMap? = null
 
     private val mapCallback = OnMapReadyCallback { googleMap: GoogleMap? ->
         googleMap?.let {
@@ -32,7 +33,7 @@ class GoogleMapUtil(
         mapFragment.getMapAsync(mapCallback)
     }
 
-    fun addMarker(latLong: LatLng, color: Float, isFocus: Boolean?) {
+    fun addMarker(latLong: LatLng, color: Float, isFocus: Boolean = false, zoomLevel: Float = 5f) {
         map?.addMarker(
             MarkerOptions().icon(
                 BitmapDescriptorFactory.defaultMarker(
@@ -40,11 +41,20 @@ class GoogleMapUtil(
                 )
             ).position(latLong)
         )
-        isFocus?.let {
+        isFocus.let {
             if (isFocus) {
-                map?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLong, 5f))
+                map?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLong, zoomLevel))
             }
         }
     }
 
+    fun clearMap() {
+        map?.let {
+            map?.clear()
+        }
+    }
+
+    fun addPolyline(polylineOptions: PolylineOptions) {
+        map?.addPolyline(polylineOptions)
+    }
 }

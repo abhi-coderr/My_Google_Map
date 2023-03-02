@@ -3,7 +3,6 @@ package org.geeksforgeeks.myapplication.ui.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -28,7 +27,7 @@ class MapViewModel : ViewModel() {
     val responseData = MutableLiveData<ArrayList<List<LatLng>>>()
 
     //error data observed by main activity
-     val errorMessage = MutableLiveData<String>()
+    val errorMessage = MutableLiveData<String>()
 
     //notify to main activity about progressbar
     val showProgress = MutableLiveData<Boolean>()
@@ -58,9 +57,9 @@ class MapViewModel : ViewModel() {
                 val response = ArrayList<List<LatLng>>()
                 try {
                     val respObj = result.body()
-                    if (respObj?.routes.isNullOrEmpty()){
-                        onError("No route found")
-                    }else {
+                    if (respObj?.routes.isNullOrEmpty()) {
+                        onError("Route not possible")
+                    } else {
                         val path = ArrayList<LatLng>()
                         for (i in 0 until respObj?.routes?.get(0)?.legs?.get(0)?.steps?.size!!) {
                             path.addAll(decodePolyline(respObj.routes[0].legs[0].steps[i].polyline.points))
@@ -146,7 +145,6 @@ class MapViewModel : ViewModel() {
         googleMapUtil = GoogleMapUtil(
             mapFragment = mapFragment,
             onMapReady = {
-
             },
             onClick = { latLng ->
                 markerPoints.add(latLng)
@@ -156,7 +154,7 @@ class MapViewModel : ViewModel() {
 
                         markerPoints.clear()
 
-                        googleMapUtil.map?.clear()
+                        googleMapUtil.clearMap()
 
                         markerPoints.add(latLng)
 
@@ -192,19 +190,14 @@ class MapViewModel : ViewModel() {
                         googleMapUtil.addMarker(
                             latLng,
                             BitmapDescriptorFactory.HUE_GREEN,
-                            isFocus = true
-                        )
-                        googleMapUtil.map?.animateCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                latLng,
-                                18F
-                            )
+                            isFocus = true,
+                            zoomLevel = 18f
                         )
                     }
 
                     markerPoints.size == 2 -> {
 
-                        googleMapUtil.map?.clear()
+                        googleMapUtil.clearMap()
 
                         googleMapUtil.addMarker(
                             markerPoints[0] as LatLng,
@@ -234,7 +227,7 @@ class MapViewModel : ViewModel() {
                     }
 
                     markerPoints.size == 3 -> {
-                        googleMapUtil.map?.clear()
+                        googleMapUtil.clearMap()
 
                         val origin = markerPoints[1]
 
