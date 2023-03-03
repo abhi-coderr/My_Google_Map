@@ -266,4 +266,10 @@ class MapViewModel : ViewModel() {
         )
     }
 
+    fun setClusterMap(mapFragment: SupportMapFragment) {
+        googleMapUtil = GoogleMapUtil(mapFragment = mapFragment, onClick = {
+            googleMapUtil.addMarker(it, BitmapDescriptorFactory.HUE_AZURE)
+        })
+    }
+
 }

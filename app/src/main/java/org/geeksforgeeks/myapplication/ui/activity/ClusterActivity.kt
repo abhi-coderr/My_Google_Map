@@ -25,7 +25,7 @@ class ClusterActivity : AppCompatActivity() {
             R.id.cluster_map
         ) as SupportMapFragment
 
-        mapViewModel.setMap(mapFragment = mapClusterFragment)
+        mapViewModel.setClusterMap(mapFragment = mapClusterFragment)
 
     }
 }
