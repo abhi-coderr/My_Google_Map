@@ -10,10 +10,11 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 
 class GoogleMapUtil(
-    mapFragment: SupportMapFragment,
-    private val onMapReady: (googleMap: GoogleMap) -> Unit = {},
-    private val onClick: (latLng: LatLng) -> Unit = {}
+    mapFragment: SupportMapFragment
 ) {
+
+    var onMapReady: (googleMap: GoogleMap) -> Unit = {}
+    var onClick: (latLng: LatLng) -> Unit = {}
 
     private var map: GoogleMap? = null
 
@@ -57,4 +58,6 @@ class GoogleMapUtil(
     fun addPolyline(polylineOptions: PolylineOptions) {
         map?.addPolyline(polylineOptions)
     }
+
 }
+

@@ -5,8 +5,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
@@ -14,6 +14,8 @@ import org.geeksforgeeks.myapplication.R
 import org.geeksforgeeks.myapplication.databinding.ActivityMainBinding
 import org.geeksforgeeks.myapplication.ui.viewmodel.MapViewModel
 import org.geeksforgeeks.myapplication.utils.Const.Companion.API_KEY
+import org.geeksforgeeks.myapplication.utils.Const.Companion.googleMapUtils
+import org.geeksforgeeks.myapplication.utils.GoogleMapUtil
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,26 +23,21 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var mapFragment: SupportMapFragment
 
-    private lateinit var mapViewModel: MapViewModel
+    private val mapViewModel: MapViewModel by viewModels()
+
+    private val googleMapUtil: GoogleMapUtil by googleMapUtils(R.id.map)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
-        mapViewModel = ViewModelProvider(this)[MapViewModel::class.java]
-
         // Initializing the Places API with the help of our API_KEY
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, API_KEY)
         }
 
-        // Map Fragment
-        mapFragment = supportFragmentManager.findFragmentById(
-            R.id.map
-        ) as SupportMapFragment
-
-        mapViewModel.setMap(mapFragment = mapFragment)
+        mapViewModel.setMap(googleMapUtil)
 
         mapViewModel.showProgress.observe(this) { isShow ->
             if (isShow) {
@@ -70,4 +67,5 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
 }

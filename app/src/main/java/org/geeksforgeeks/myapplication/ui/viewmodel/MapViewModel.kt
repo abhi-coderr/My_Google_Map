@@ -38,6 +38,7 @@ class MapViewModel : ViewModel() {
     //declare util instance
     lateinit var googleMapUtil: GoogleMapUtil
 
+
     private var lastFirst = Any()
     private var lastSecond = Any()
     private var markerPoints: ArrayList<Any> = ArrayList()
@@ -141,135 +142,130 @@ class MapViewModel : ViewModel() {
         return poly
     }
 
-    fun setMap(mapFragment: SupportMapFragment) {
-        googleMapUtil = GoogleMapUtil(
-            mapFragment = mapFragment,
-            onMapReady = {
-            },
-            onClick = { latLng ->
-                markerPoints.add(latLng)
+    fun setMap(googleMapUtil: GoogleMapUtil) {
+        this.googleMapUtil = googleMapUtil
+        this.googleMapUtil.onClick = { latLng ->
+            markerPoints.add(latLng)
 
-                when {
-                    markerPoints.size > 3 -> {
+            when {
+                markerPoints.size > 3 -> {
 
-                        markerPoints.clear()
+                    markerPoints.clear()
 
-                        googleMapUtil.clearMap()
+                    googleMapUtil.clearMap()
 
-                        markerPoints.add(latLng)
+                    markerPoints.add(latLng)
 
-                        val origin = markerPoints[0]
+                    val origin = markerPoints[0]
 
-                        googleMapUtil.addMarker(
-                            lastSecond as LatLng,
-                            BitmapDescriptorFactory.HUE_GREEN,
-                            isFocus = false
-                        )
+                    googleMapUtil.addMarker(
+                        lastSecond as LatLng,
+                        BitmapDescriptorFactory.HUE_GREEN,
+                        isFocus = false
+                    )
 
-                        googleMapUtil.addMarker(
-                            origin as LatLng,
-                            BitmapDescriptorFactory.HUE_RED,
-                            isFocus = false
-                        )
+                    googleMapUtil.addMarker(
+                        origin as LatLng,
+                        BitmapDescriptorFactory.HUE_RED,
+                        isFocus = false
+                    )
 
-                        val originLatString = (lastSecond as LatLng).latitude.toString()
-                        val originLongString = (lastSecond as LatLng).longitude.toString()
+                    val originLatString = (lastSecond as LatLng).latitude.toString()
+                    val originLongString = (lastSecond as LatLng).longitude.toString()
 
-                        val originString = "$originLatString,$originLongString"
+                    val originString = "$originLatString,$originLongString"
 
-                        val destinationLatString = origin.latitude.toString()
-                        val destinationLongString = origin.longitude.toString()
+                    val destinationLatString = origin.latitude.toString()
+                    val destinationLongString = origin.longitude.toString()
 
-                        val destinationString = "$destinationLatString,$destinationLongString"
-                        getDirection(originString, destinationString)
+                    val destinationString = "$destinationLatString,$destinationLongString"
+                    getDirection(originString, destinationString)
 
-                    }
+                }
 
-                    markerPoints.size == 1 -> {
+                markerPoints.size == 1 -> {
 
-                        googleMapUtil.addMarker(
-                            latLng,
-                            BitmapDescriptorFactory.HUE_GREEN,
-                            isFocus = true,
-                            zoomLevel = 18f
-                        )
-                    }
+                    googleMapUtil.addMarker(
+                        latLng,
+                        BitmapDescriptorFactory.HUE_GREEN,
+                        isFocus = true,
+                        zoomLevel = 18f
+                    )
+                }
 
-                    markerPoints.size == 2 -> {
+                markerPoints.size == 2 -> {
 
-                        googleMapUtil.clearMap()
+                    googleMapUtil.clearMap()
 
-                        googleMapUtil.addMarker(
-                            markerPoints[0] as LatLng,
-                            BitmapDescriptorFactory.HUE_GREEN,
-                            isFocus = false
-                        )
-                        googleMapUtil.addMarker(
-                            latLng,
-                            BitmapDescriptorFactory.HUE_RED,
-                            isFocus = false
-                        )
+                    googleMapUtil.addMarker(
+                        markerPoints[0] as LatLng,
+                        BitmapDescriptorFactory.HUE_GREEN,
+                        isFocus = false
+                    )
+                    googleMapUtil.addMarker(
+                        latLng,
+                        BitmapDescriptorFactory.HUE_RED,
+                        isFocus = false
+                    )
 
-                        val origin = markerPoints[0]
-                        val dest = markerPoints[1]
+                    val origin = markerPoints[0]
+                    val dest = markerPoints[1]
 
-                        val originLatString = (origin as LatLng).latitude.toString()
-                        val originLongString = (origin).longitude.toString()
+                    val originLatString = (origin as LatLng).latitude.toString()
+                    val originLongString = (origin).longitude.toString()
 
-                        val originString = "$originLatString,$originLongString"
+                    val originString = "$originLatString,$originLongString"
 
-                        val destinationLatString = (dest as LatLng).latitude.toString()
-                        val destinationLongString = (dest).longitude.toString()
+                    val destinationLatString = (dest as LatLng).latitude.toString()
+                    val destinationLongString = (dest).longitude.toString()
 
-                        val destinationString = "$destinationLatString,$destinationLongString"
+                    val destinationString = "$destinationLatString,$destinationLongString"
 
-                        getDirection(originString, destinationString)
-                    }
+                    getDirection(originString, destinationString)
+                }
 
-                    markerPoints.size == 3 -> {
-                        googleMapUtil.clearMap()
+                markerPoints.size == 3 -> {
+                    googleMapUtil.clearMap()
 
-                        val origin = markerPoints[1]
+                    val origin = markerPoints[1]
 
-                        val dest = markerPoints[2]
+                    val dest = markerPoints[2]
 
-                        lastFirst = origin
-                        lastSecond = dest
+                    lastFirst = origin
+                    lastSecond = dest
 
 
-                        googleMapUtil.addMarker(
-                            origin as LatLng,
-                            BitmapDescriptorFactory.HUE_GREEN,
-                            isFocus = false
-                        )
-                        googleMapUtil.addMarker(
-                            latLng,
-                            BitmapDescriptorFactory.HUE_RED,
-                            isFocus = false
-                        )
+                    googleMapUtil.addMarker(
+                        origin as LatLng,
+                        BitmapDescriptorFactory.HUE_GREEN,
+                        isFocus = false
+                    )
+                    googleMapUtil.addMarker(
+                        latLng,
+                        BitmapDescriptorFactory.HUE_RED,
+                        isFocus = false
+                    )
 
-                        val originLatString = origin.latitude.toString()
-                        val originLongString = origin.longitude.toString()
+                    val originLatString = origin.latitude.toString()
+                    val originLongString = origin.longitude.toString()
 
-                        val originString = "$originLatString,$originLongString"
+                    val originString = "$originLatString,$originLongString"
 
-                        val destinationLatString = (dest as LatLng).latitude.toString()
-                        val destinationLongString = (dest).longitude.toString()
+                    val destinationLatString = (dest as LatLng).latitude.toString()
+                    val destinationLongString = (dest).longitude.toString()
 
-                        val destinationString = "$destinationLatString,$destinationLongString"
+                    val destinationString = "$destinationLatString,$destinationLongString"
 
-                        getDirection(originString, destinationString)
+                    getDirection(originString, destinationString)
 
-                    }
                 }
             }
-        )
+        }
     }
 
     fun setClusterMap(mapFragment: SupportMapFragment) {
-        googleMapUtil = GoogleMapUtil(mapFragment = mapFragment, onClick = {
-            googleMapUtil.addMarker(it, BitmapDescriptorFactory.HUE_AZURE)
-        })
+        googleMapUtil = GoogleMapUtil(mapFragment = mapFragment)
     }
+
 
 }
