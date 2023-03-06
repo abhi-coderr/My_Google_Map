@@ -1,5 +1,6 @@
 package org.geeksforgeeks.myapplication.ui.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,7 +38,6 @@ class MapViewModel : ViewModel() {
 
     //declare util instance
     lateinit var googleMapUtil: GoogleMapUtil
-
 
     private var lastFirst = Any()
     private var lastSecond = Any()
@@ -144,9 +144,9 @@ class MapViewModel : ViewModel() {
 
     fun setMap(googleMapUtil: GoogleMapUtil) {
         this.googleMapUtil = googleMapUtil
+
         this.googleMapUtil.onClick = { latLng ->
             markerPoints.add(latLng)
-
             when {
                 markerPoints.size > 3 -> {
 
@@ -261,10 +261,15 @@ class MapViewModel : ViewModel() {
                 }
             }
         }
+
     }
 
-    fun setClusterMap(mapFragment: SupportMapFragment) {
-        googleMapUtil = GoogleMapUtil(mapFragment = mapFragment)
+    fun setClusterMap(googleMapUtil: GoogleMapUtil, context: Context) {
+        this.googleMapUtil = googleMapUtil
+        this.googleMapUtil.onClick = { latLng ->
+//            googleMapUtil.addMarker(latLng, BitmapDescriptorFactory.HUE_YELLOW)
+            googleMapUtil.setUpCluster(latLng, context = context)
+        }
     }
 
 

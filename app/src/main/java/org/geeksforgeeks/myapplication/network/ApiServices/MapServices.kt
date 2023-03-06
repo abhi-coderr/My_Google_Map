@@ -14,17 +14,10 @@ import retrofit2.http.Query
 interface MapServices {
 
     @POST("maps/api/directions/json")
-//    @POST("maps/api/directions/json?origin={originLat},{originLong}&destination={destLat},{destLong}&sensor=false&mode=driving&key={apiKey}")
     suspend fun getRouteFromAPI(
-//        @Query("origin")
-//        @Path("originLat") originLat: Double,
-//        @Path("originLong") originLong: Double,
-//        @Path("destLat") destLat: Double,
-//        @Path("destLong") destLong: Double,
-//        @Path("apiKey") apiKey: String
-    @Query("origin") origin : String,
-    @Query("destination") destination : String,
-    @Query("key") key : String
+        @Query("origin") origin: String,
+        @Query("destination") destination: String,
+        @Query("key") key: String
     ): Response<MapDataClass>
 
 }

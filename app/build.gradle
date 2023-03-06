@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "org.geeksforgeeks.myapplication"
-        minSdkVersion 16
+        minSdkVersion 19
         multiDexEnabled true
         targetSdkVersion 31
         versionCode 1
@@ -65,17 +65,18 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
 
-    //dagger-hilt
-//    implementation 'com.google.dagger:dagger:2.27'
-//    annotationProcessor "com.google.dagger:dagger-compiler:2.27"
-//    implementation "com.google.dagger:hilt-android:2.44"
-//    kapt "com.google.dagger:hilt-compiler:2.44"
-
     //sdp-ssp
     implementation 'com.intuit.sdp:sdp-android:1.1.0'
     implementation 'com.intuit.ssp:ssp-android:1.1.0'
 
     implementation 'androidx.fragment:fragment-ktx:1.1.0'
+
+//    //google services
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
+//    //google services location dependency
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
 }
 
 // Allow references to generated code
