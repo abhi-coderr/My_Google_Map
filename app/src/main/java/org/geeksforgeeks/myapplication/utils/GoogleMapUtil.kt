@@ -83,8 +83,12 @@ class GoogleMapUtil(
         clusterManager = ClusterManager(context, map)
         clusterManager.renderer = MyClusterRenderer(
             context, map,
+//            CustomMarkerFactory(context).getMarkerBitmap(
+//                max(1, latLongList.size).toString(),
+//                CustomMarkerFactory.Type.Artist
+//            ),
             CustomMarkerFactory(context).getMarkerBitmap(
-                max(1, latLongList.size).toString(),
+                "1",
                 CustomMarkerFactory.Type.Artist
             ),
             clusterManager

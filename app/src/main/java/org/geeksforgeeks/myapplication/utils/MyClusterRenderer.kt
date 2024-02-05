@@ -16,6 +16,8 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import com.google.maps.android.ui.IconGenerator
 import org.geeksforgeeks.myapplication.R
 import org.geeksforgeeks.myapplication.network.model.MyItem
+import org.geeksforgeeks.myapplication.utils.marker.CustomMarkerFactory
+import kotlin.math.max
 
 
 class MyClusterRenderer(
@@ -43,25 +45,26 @@ class MyClusterRenderer(
         val clusterIcon: Drawable? =
             ContextCompat.getDrawable(context, R.drawable.ic_marker_institute)
 
+        //todo: uncomment this code if your need is only change color of it.
 //        clusterIcon?.setColorFilter(
 //            ContextCompat.getColor(context, android.R.color.holo_orange_light),
 //            PorterDuff.Mode.SRC_ATOP
 //        )
-
-
-
-        mClusterIconGenerator.setBackground(clusterIcon)
+//        mClusterIconGenerator.setBackground(clusterIcon)
 
         //modify padding for one or two digit numbers
-        if (cluster.size < 10) {
-            mClusterIconGenerator.setContentPadding(40, 20, 0, 0)
-        } else {
-            mClusterIconGenerator.setContentPadding(30, 20, 0, 0)
-        }
-        val icon = mClusterIconGenerator.makeIcon(cluster.size.toString())
-//        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon))
-        customMarker?.let { bitmap ->
-            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-        }
+//        if (cluster.size < 10) {
+//            mClusterIconGenerator.setContentPadding(40, 20, 0, 0)
+//        } else {
+//            mClusterIconGenerator.setContentPadding(30, 20, 0, 0)
+//        }
+
+
+        //this is for cluster size with custom pin marker.
+        val abhi =  CustomMarkerFactory(context).getMarkerBitmap(
+            max(1, cluster.size).toString(),
+            CustomMarkerFactory.Type.Artist
+        )
+        markerOptions.icon(abhi?.let { BitmapDescriptorFactory.fromBitmap(it) })
     }
 }
