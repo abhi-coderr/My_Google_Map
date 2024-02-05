@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.FragmentActivity">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+        <View
+            android:id="@+id/left_extension_padding"
+            android:layout_width="@dimen/_5sdp"
+            android:layout_height="@dimen/_1sdp"
+            />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/marker_cl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/left_extension_padding"
+            android:background="@drawable/ic_marker_blue_dark"
+            tools:background="@drawable/ic_marker_blue_dark">
+
+            <TextView
+                android:id="@+id/text_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/_15sdp"
+                android:paddingTop="@dimen/_9sdp"
+                android:paddingBottom="@dimen/_21sdp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_12sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="1" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <View
+            android:id="@+id/bottom_extension_padding"
+            android:layout_width="@dimen/_1sdp"
+            android:layout_below="@id/marker_cl"
+            android:layout_height="@dimen/_30sdp"
+            />
+        <View
+            android:id="@+id/right_extension_padding"
+            android:layout_toEndOf="@+id/marker_cl"
+            android:layout_width="@dimen/_5sdp"
+            android:layout_height="@dimen/_1sdp"
+            />
+    </RelativeLayout>
+
+</layout>

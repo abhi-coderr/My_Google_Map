@@ -1,10 +1,14 @@
 package org.geeksforgeeks.myapplication.ui.viewmodel
 
+import android.R
 import android.content.Context
+import android.net.ConnectivityManager
+import android.util.EventLogTags.Description
+import android.view.View
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Job
@@ -18,6 +22,7 @@ import org.geeksforgeeks.myapplication.utils.GoogleMapUtil
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+
 
 class MapViewModel : ViewModel() {
 

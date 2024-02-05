@@ -19,15 +19,7 @@ class ClusterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         activityClusterBinding = ActivityClusterBinding.inflate(layoutInflater)
         setContentView(activityClusterBinding.root)
-
         mapViewModel = ViewModelProvider(this)[MapViewModel::class.java]
-
         mapViewModel.setClusterMap(googleMapUtil = googleMapUtil, this)
-
     }
-
-    private fun setUpCluster() {
-
-    }
-
 }
