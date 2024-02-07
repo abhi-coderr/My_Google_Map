@@ -3,13 +3,18 @@ package org.geeksforgeeks.myapplication.utils
 import android.content.Context
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.maps.android.MarkerManager
+import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import org.geeksforgeeks.myapplication.network.model.MyItem
 
 class GoogleMapUtil(
@@ -87,16 +92,48 @@ class GoogleMapUtil(
         // Initialize the manager with the context and the map.
         // (Activity extends context, so we can pass 'this' in the constructor.)
         clusterManager = ClusterManager(context, map)
+
+        // Initialize renderer
+
+//        // Initialize renderer
+//        val renderer = ZoomBasedRenderer(context, map, clusterManager)
+//        clusterManager.renderer = renderer
+
+
+//        clusterManager = ClusterManager<MyItem>(context, map, object : MarkerManager(map) {
+//            override fun onMarkerClick(marker: Marker): Boolean {
+////                map?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLong, 9.9f))
+//
+//                return super.onMarkerClick(marker)
+//            }
+//        })
+//        clusterManager.setOnClusterClickListener { true }
+        map?.setOnMarkerClickListener(clusterManager)
+
+
+        clusterManager.setOnClusterClickListener { cluster ->
+            // Zoom in on the clicked cluster
+            map?.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    cluster.position,
+                    map?.cameraPosition?.zoom?.plus(5) ?: 5f
+                )
+            )
+            true
+        }
+
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
         map?.setOnCameraIdleListener(clusterManager)
         map?.setOnMarkerClickListener(clusterManager)
+
         // Add cluster items (markers) to the cluster manager.
         val myItem =
             MyItem(latLong.latitude, latLong.longitude, "Title point", "Snippet point")
         latLongList.add(myItem)
         clusterManager.addItems(latLongList)
         clusterManager.setAnimation(true)
+        clearMap()
         clusterManager.cluster()
     }
 
